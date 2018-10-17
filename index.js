@@ -31,6 +31,7 @@ database
 	.where('id', '==', STATION_ID)
 	.get()
 	.then(querySnapshot => {
+		// querySnapshot.forEach(ss => {console.log(ss.data());})
 		// Start scanner instance
 		startScanner()
 	})
@@ -78,17 +79,19 @@ const onRead = id => {
 
 // Handle enter events
 const onEntered = id => {
-	lastSeenId = id
 	console.log(chalk.cyan("Entered"), id);
-	SCANS_REF
-		.add({
-			in: new Date(),
-			out: null
-		})
-		.then(doc => {
-			console.log("IN: ", doc.id);
-			currentScanId = doc.id
-		})
+	if(lastSeenId !== id){
+		SCANS_REF
+			.add({
+				in: new Date(),
+				out: null
+			})
+			.then(doc => {
+				console.log("IN: ", doc.id);
+				currentScanId = doc.id
+			})
+	}
+	lastSeenId = id
 }
 
 // Handle exit events
