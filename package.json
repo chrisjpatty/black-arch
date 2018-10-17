@@ -9,10 +9,10 @@
   "author": "@chrisjpatty",
   "license": "ISC",
   "dependencies": {
+    "bonjour": "^3.5.0",
     "chalk": "^2.4.1",
-    "node-rfid": "^1.0.7",
+    "firebase": "^5.5.4",
     "python-shell": "^1.0.6",
-    "rc522-rfid": "^14.1.10",
     "rpio": "^0.9.23"
   }
 }
