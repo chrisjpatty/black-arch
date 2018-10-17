@@ -1,30 +1,25 @@
+// Import dependencies
 const PS = require('python-shell')
-const chalk = require('chalk')
 const PythonShell = PS.PythonShell
+const chalk = require('chalk')
 const bonjour = require('bonjour')()
 const firebase = require('firebase')
 								 require("firebase/firestore");
 
+// Define global constants
 const CONFIG = require('./config')
 const NODE_MESSAGE = '@NODE';
 const READ_MESSAGE = 'READ';
 const STATION_ID = CONFIG.stationId
 
+// Define global variables (mutatable)
 let exitTimeout = null;
 let entered = false;
 let lastSeenId = null;
 let currentScanId = null;
 
 // Initialize Firebase app
-const config = {
-    apiKey: "AIzaSyA3E1WvcdrGm9JWe5LkXtmO12V8NU8GUws",
-    authDomain: "black-arch.firebaseapp.com",
-    databaseURL: "https://black-arch.firebaseio.com",
-    projectId: "black-arch",
-    storageBucket: "black-arch.appspot.com",
-    messagingSenderId: "580453430462"
-  };
-const app = firebase.initializeApp(config);
+const app = firebase.initializeApp(CONFIG.firebaseConfig);
 const database = firebase.firestore();
 database.settings({
   timestampsInSnapshots: true
@@ -36,6 +31,7 @@ database
 	.where('id', '==', STATION_ID)
 	.get()
 	.then(querySnapshot => {
+		// Start scanner instance
 		startScanner()
 	})
 
@@ -45,6 +41,7 @@ const SCANS_REF = database
 	.doc(`station_${STATION_ID}`)
 	.collection("scans")
 
+//Spawns a new python process and attaches message handlers
 const startScanner = () => {
 	console.log(chalk.green("Station #1 scanner started"));
 
@@ -79,6 +76,7 @@ const onRead = id => {
 	exitTimeout = setTimeout(onExited, 1000)
 }
 
+// Handle enter events
 const onEntered = id => {
 	lastSeenId = id
 	console.log(chalk.cyan("Entered"), id);
@@ -93,6 +91,7 @@ const onEntered = id => {
 		})
 }
 
+// Handle exit events
 const onExited = () => {
 	const exitedId = lastSeenId;
 	const cachedCurrentScanId = currentScanId
@@ -108,6 +107,7 @@ const onExited = () => {
 		})
 }
 
+// Handle script execution exit event
 const onExitHandler = () => {
 	pyshell.end((err,code,signal) => {
 	  if (err) throw err
@@ -117,8 +117,5 @@ const onExitHandler = () => {
 
 // Attach exit handler
 process.on('exit', onExitHandler.bind(null,{cleanup:true}))
-
-// Start scanner instance
-// startScanner()
 
 bonjour.publish({ name: 'My Web Server', type: 'http', port: 3000 })
