@@ -1,2 +1,2 @@
-# black-arch
-Parent repository for Black Arch Holsters code projects.
+# black-arch-scanner
+Python-Node client for running Black Arch Holster station scanners.
