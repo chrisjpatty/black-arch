@@ -5,6 +5,7 @@ const chalk = require('chalk')
 const bonjour = require('bonjour')()
 const firebase = require('firebase')
 								 require("firebase/firestore");
+const { blink, ledOn, ledOff, cleanupLed } = require("./led")
 
 // Define global constants
 const CONFIG = require('./config')
@@ -45,6 +46,8 @@ const SCANS_REF = database
 //Spawns a new python process and attaches message handlers
 const startScanner = () => {
 	console.log(chalk.green("Station #1 scanner started"));
+	ledOff()
+	blink(3, 400)
 
 	// Spawn python script
 	let pyshell = new PythonShell('read.py', {
@@ -112,6 +115,8 @@ const onExited = () => {
 
 // Handle script execution exit event
 const onExitHandler = () => {
+	ledOff()
+	// cleanupLed()
 	pyshell.end((err,code,signal) => {
 	  if (err) throw err
 	})
@@ -119,6 +124,6 @@ const onExitHandler = () => {
 }
 
 // Attach exit handler
-process.on('exit', onExitHandler.bind(null,{cleanup:true}))
+process.on('exit', onExitHandler)
 
 bonjour.publish({ name: 'My Web Server', type: 'http', port: 3000 })

@@ -12,6 +12,7 @@
     "bonjour": "^3.5.0",
     "chalk": "^2.4.1",
     "firebase": "^5.5.4",
+    "onoff": "^3.2.2",
     "python-shell": "^1.0.6",
     "rpio": "^0.9.23"
   }
