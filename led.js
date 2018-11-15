@@ -1,10 +1,16 @@
 var Gpio = require('onoff').Gpio;
 var LED = new Gpio(4, 'out');
+var lastImperativeState = 0;
 
 module.exports.blink = (numBlinks, intervalOverride) => (
   new Promise((resolve, reject) => {
     let interval = intervalOverride || 250
-    blinkLED(interval, numBlinks * 2, resolve)
+    blinkLED(interval, numBlinks * 2, () => {
+      if(LED.readSync() !== lastImperativeState){
+        LED.writeSync(lastImperativeState)
+      }
+      resolve(lastImperativeState)
+    })
   })
 )
 
@@ -30,12 +36,14 @@ const blinkLED = (interval, numBlinks, callback) => { //function to start blinki
 }
 
 module.exports.ledOn = () => {
+  lastImperativeState = 1
   if(LED.readSync() === 0){
     LED.writeSync(1)
   }
 }
 
 module.exports.ledOff = () => {
+  lastImperativeState = 0
   if(LED.readSync() === 1){
     LED.writeSync(0)
   }

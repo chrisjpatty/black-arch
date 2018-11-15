@@ -14,6 +14,7 @@ const READ_MESSAGE = 'READ';
 const STATION_ID = CONFIG.stationId
 
 // Define global variables (mutatable)
+let pyshell = null;
 let exitTimeout = null;
 let entered = false;
 let lastSeenId = null;
@@ -36,6 +37,9 @@ database
 		// Start scanner instance
 		startScanner()
 	})
+	.catch(err => {
+		startScanner()
+	})
 
 // Set a reference to the scans collection
 const SCANS_REF = database
@@ -45,12 +49,12 @@ const SCANS_REF = database
 
 //Spawns a new python process and attaches message handlers
 const startScanner = () => {
-	console.log(chalk.green("Station #1 scanner started"));
+	console.log(chalk.green(`Station ${STATION_ID} scanner started`));
 	ledOff()
 	blink(3, 400)
 
 	// Spawn python script
-	let pyshell = new PythonShell('read.py', {
+	pyshell = new PythonShell('read.py', {
 		mode: 'text',
 		pythonPath: '/usr/bin/python',
 		pythonOptions: ['-u'],
@@ -92,8 +96,13 @@ const onEntered = id => {
 			.then(doc => {
 				console.log("IN: ", doc.id);
 				currentScanId = doc.id
+				// blink(1, 500)
+			})
+			.catch(err => {
+				blink(5, 200)
 			})
 	}
+	ledOn()
 	lastSeenId = id
 }
 
@@ -111,6 +120,10 @@ const onExited = () => {
 		.then(() => {
 			console.log("OUT: ", cachedCurrentScanId);
 		})
+		.catch(err => {
+			blink(5, 100)
+		})
+	ledOff()
 }
 
 // Handle script execution exit event
@@ -120,10 +133,11 @@ const onExitHandler = () => {
 	pyshell.end((err,code,signal) => {
 	  if (err) throw err
 	})
-	console.log(chalk.red("Scanner station #1 exited"));
+	console.log()
+	console.log(chalk.red(`Scanner station ${STATION_ID} exited`));
+	process.exit()
 }
+process.on('SIGINT', onExitHandler);
 
-// Attach exit handler
-process.on('exit', onExitHandler)
-
-bonjour.publish({ name: 'My Web Server', type: 'http', port: 3000 })
+const {firebaseConfig: deleted, ...payload } = CONFIG
+bonjour.publish({ name: `Station ${STATION_ID}`, type: 'http', port: 3000, txt: payload })
