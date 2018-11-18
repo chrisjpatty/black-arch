@@ -6,6 +6,7 @@ const bonjour = require('bonjour')()
 const firebase = require('firebase')
 								 require("firebase/firestore");
 const { blink, ledOn, ledOff, cleanupLed } = require("./led")
+const { registerExpressServer, expressPort } = require('./server')
 
 // Define global constants
 const CONFIG = require('./config')
@@ -139,5 +140,13 @@ const onExitHandler = () => {
 }
 process.on('SIGINT', onExitHandler);
 
-const {firebaseConfig: deleted, ...payload } = CONFIG
-bonjour.publish({ name: `Station ${STATION_ID}`, type: 'http', port: 3000, txt: payload })
+// Create Bonjour server
+const bonjourServer = bonjour.publish({
+  name: `Station ${STATION_ID}`,
+  type: 'http',
+  port: 3001,
+  txt: { guid: CONFIG.guid, id: CONFIG.stationId, expressPort }
+})
+
+// Expose express server
+registerExpressServer(bonjourServer)

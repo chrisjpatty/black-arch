@@ -9,11 +9,14 @@
   "author": "@chrisjpatty",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "bonjour": "^3.5.0",
     "chalk": "^2.4.1",
+    "express": "^4.16.4",
     "firebase": "^5.5.4",
     "onoff": "^3.2.2",
     "python-shell": "^1.0.6",
-    "rpio": "^0.9.23"
+    "rpio": "^0.9.23",
+    "shelljs": "^0.8.3"
   }
 }
